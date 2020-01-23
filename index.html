@@ -173,7 +173,7 @@
       [Constructor,
        Constructor(ConstructorOptions options)]
       interface Source {
-        Stream&lt;Quad&gt; match(optional Term? subject, optional Term? predicate, optional Term? object, optional Term? graph);
+        Stream&lt;Quad&gt; match(optional Term|TermFilter? subject, optional Term|TermFilter? predicate, optional Term|TermFilter? object, optional Term|TermFilter? graph);
       };
       </pre>
 
@@ -229,7 +229,7 @@
        Constructor(ConstructorOptions options)]
       interface Store {
         EventEmitter remove(Stream&lt;Quad&gt; stream);
-        EventEmitter removeMatches(optional Term? subject, optional Term? predicate, optional Term? object, optional Term? graph);
+        EventEmitter removeMatches(optional Term|TermFilter? subject, optional Term|TermFilter? predicate, optional Term|TermFilter? object, optional Term|TermFilter? graph);
         EventEmitter deleteGraph((Term or string) graph);
       };
 
@@ -255,6 +255,70 @@
         <dfn>deleteGraph()</dfn> Deletes the given named graph. The <code>end</code> and
         <code>error</code> events are used like described in the <code>Stream</code> interface.
       </p>
+    </section>
+
+
+    <section data-dfn-for="TermFilter">
+      <h3><dfn>TermFilter</dfn> interface</h3>
+
+      <pre class="idl">
+      interface TermFilter {
+        attribute string type;
+        boolean test(Term term);
+      };
+      </pre>
+
+      <p>
+        A TermFilter is an object to test if a Term fulfills some criteria. The specification
+        doesn't define an interface to create instances of TermFilter. Creating instances is
+        implementation-specific. Implementations can always use the test method to check if a term
+        fulfills the criteria. For the filter types defined in this specification, the
+        implementations may use an optimized code that directly accesses the defined attributes to
+        run the test without calling the test method.
+      </p>
+
+      <section data-dfn-for="LogicTermFilter">
+        <h3><dfn>LogicTermFilter</dfn> interface</h3>
+
+        <pre class="idl">
+        interface LogicTermFilter : TermFilter {
+          attribute Set&lt;TermFilter&gt; filters;
+        };
+        </pre>
+
+        <p>
+          A LogicTermFilter combines other TermFilters using a logic operator. The inherited type
+          attribute can have one of the following values:
+        </p>
+
+        <ul>
+          <li>and</li>
+          <li>or</li>
+        </ul>
+      </section>
+
+      <section data-dfn-for="RelationalTermFilter">
+        <h3><dfn>RelationalTermFilter</dfn> interface</h3>
+
+        <pre class="idl">
+        interface RelationalTermFilter : TermFilter {
+          attribute number value;
+        };
+        </pre>
+
+        <p>
+          A RelationalTermFilter compares against a number with an equality or inequality operator.
+          The inherited type attribute can have one of the following values:
+        </p>
+
+        <ul>
+          <li>eq</li>
+          <li>gt</li>
+          <li>gte</li>
+          <li>lt</li>
+          <li>lte</li>
+        </ul>
+      </section>
     </section>
   </section>
 </body>
